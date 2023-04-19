@@ -7,5 +7,4 @@ sealed interface DialogState {
     object Loading : DialogState
 
     class Error(message: String) : DialogState
-
 }

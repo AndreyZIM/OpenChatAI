@@ -40,7 +40,7 @@ class OpenChatViewModel @Inject constructor(
 
     fun sendMessage(body: String) {
         if (body.isEmpty()) {
-            // TODO change state to Error
+            _uiState.value = UiState.Error("Field is empty.")
         } else {
             _uiState.value = UiState.Waiting
             viewModelScope.launch(Dispatchers.IO) {
@@ -49,6 +49,10 @@ class OpenChatViewModel @Inject constructor(
                 _uiState.value = UiState.Success
             }
         }
+    }
+
+    fun resetError() {
+        _uiState.value = UiState.Success
     }
 
     fun clearMessages() {

@@ -77,13 +77,21 @@ fun OpenChatApp(
             ) {
                 TextField(
                     value = textedMessage,
-                    onValueChange = { textedMessage = it },
+                    onValueChange = {
+                        if (uiState is UiState.Error)
+                            viewModel.resetError()
+                        textedMessage = it
+                    },
                     modifier = Modifier
                         .padding(8.dp)
                         .weight(1f),
                     maxLines = 6,
-                    isError = dialogState is DialogState.Error,
-                    placeholder = { Text("Type here...") }
+                    isError = uiState is UiState.Error,
+                    placeholder = { Text("Type here...") },
+                    supportingText = {
+                        if (uiState is UiState.Error)
+                            Text(text = (uiState as UiState.Error).message)
+                    }
                 )
                 IconButton(
                     onClick = {
@@ -197,6 +205,7 @@ fun SentMessage(
 
 }
 
+@ExperimentalMaterial3Api
 @Composable
 fun ReceivedMessage(
     modifier: Modifier = Modifier,
