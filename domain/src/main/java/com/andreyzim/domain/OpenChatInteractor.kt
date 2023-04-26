@@ -1,11 +1,21 @@
 package com.andreyzim.domain
 
-class OpenChatInteractor(
-    private val repository: OpenChatRepository,
-    private val handleRequest: HandleDomainRequest
-) {
 
-//    suspend fun sendMessage(body: String) : MessageResult = handleRequest.handle {
-//        repository.sendMessage(body)
-//    }
+interface OpenChatInteractor {
+
+    suspend fun sendMessage(body: String): RequestResult
+    suspend fun clearMessages()
+
+    class Base(
+        private val repository: OpenChatRepository,
+        private val handleRequest: HandleDomainRequest
+    ) : OpenChatInteractor {
+        override suspend fun sendMessage(body: String): RequestResult = handleRequest.handle {
+            repository.sendMessage(body)
+        }
+
+        override suspend fun clearMessages() {
+            repository.clearMessages()
+        }
+    }
 }
