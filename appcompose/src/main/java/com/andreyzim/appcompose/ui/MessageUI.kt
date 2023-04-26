@@ -1,10 +1,12 @@
 package com.andreyzim.appcompose.ui
 
 import android.content.ClipData
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
+@ExperimentalMaterial3Api
 data class MessageUI(
     //TODO do private
     val body: String,

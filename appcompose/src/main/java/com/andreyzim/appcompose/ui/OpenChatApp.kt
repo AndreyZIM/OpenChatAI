@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
 
 package com.andreyzim.appcompose.ui
 
@@ -45,7 +45,7 @@ fun OpenChatApp(
         mutableStateOf(TextFieldValue(""))
     }
 
-    val dialogState by viewModel.dialogState.collectAsStateWithLifecycle()
+    val messageListStateState by viewModel.messageListStateState.collectAsStateWithLifecycle()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Scaffold(
@@ -58,7 +58,7 @@ fun OpenChatApp(
                 actions = {
                     IconButton(
                         onClick = { viewModel.clearMessages() },
-                        enabled = !(dialogState is DialogState.Loading || uiState is UiState.Waiting)
+                        enabled = !(messageListStateState is MessageListStateState.Loading || uiState is UiState.Waiting)
                     ) {
                         Icon(
                             painter = painterResource(id = R.drawable.baseline_clear_all_24),
@@ -100,7 +100,7 @@ fun OpenChatApp(
                     }, modifier = Modifier
                         .padding(0.dp, 8.dp, 8.dp, 8.dp)
                         .align(Alignment.Bottom),
-                    enabled = !(dialogState is DialogState.Loading || uiState is UiState.Waiting)
+                    enabled = !(messageListStateState is MessageListStateState.Loading || uiState is UiState.Waiting)
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.baseline_send_24),
@@ -110,12 +110,12 @@ fun OpenChatApp(
             }
         }
     ) {
-        if (dialogState is DialogState.Loading)
+        if (messageListStateState is MessageListStateState.Loading)
             Box(modifier = modifier.padding(it)) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
         else {
-            if ((dialogState as DialogState.Success).messageList.isEmpty()) {
+            if ((messageListStateState as MessageListStateState.Success).messageList.isEmpty()) {
                 Box(modifier = modifier.padding(it)) {
                     Column(modifier = Modifier.align(Alignment.Center)) {
                         Icon(
@@ -149,7 +149,7 @@ fun OpenChatApp(
                         Spacer(Modifier.size(8.dp))
                     }
 
-                    items((dialogState as DialogState.Success).messageList) { message ->
+                    items((messageListStateState as MessageListStateState.Success).messageList) { message ->
                         message.toComposable(
                             modifier = Modifier
                                 .align(Alignment.End)
@@ -221,12 +221,14 @@ fun ReceivedMessage(
                     .align(Alignment.Bottom),
                 shape = RoundedCornerShape(42.dp)
             ) {
-                Image(
+                Icon(
                     painter = painterResource(id = R.drawable.openai_icon),
                     contentDescription = null,
                     modifier = Modifier
                         .size(42.dp)
-                        .padding(6.dp)
+                        .padding(6.dp),
+                    tint = MaterialTheme.colorScheme.onSurface
+
                 )
             }
         }

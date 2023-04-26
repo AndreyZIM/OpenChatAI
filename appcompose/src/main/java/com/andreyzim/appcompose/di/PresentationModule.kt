@@ -1,5 +1,8 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.andreyzim.appcompose.di
 
+import androidx.compose.material3.ExperimentalMaterial3Api
 import com.andreyzim.appcompose.ui.*
 import com.andreyzim.domain.MessageDomain
 import com.andreyzim.domain.MessageResult
@@ -22,5 +25,5 @@ interface PresentationModule {
     fun bindToUIMapper(mapper: MessageToUIMapper): MessageDomain.Mapper<MessageUI>
 
     @Binds
-    fun provideMessageResultMapper(mapper: MessageResultMapper): MessageResult.Mapper<DialogState>
+    fun provideMessageResultMapper(mapper: MessageResultMapper): MessageResult.Mapper<MessageListStateState>
 }

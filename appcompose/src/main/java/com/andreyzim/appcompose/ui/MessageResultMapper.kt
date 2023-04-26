@@ -1,15 +1,18 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.andreyzim.appcompose.ui
 
+import androidx.compose.material3.ExperimentalMaterial3Api
 import com.andreyzim.domain.MessageDomain
 import com.andreyzim.domain.MessageResult
 import javax.inject.Inject
 
 class MessageResultMapper @Inject constructor(
     private val mapper: MessageDomain.Mapper<MessageUI>
-) : MessageResult.Mapper<DialogState> {
-    override fun map(list: List<MessageDomain>, errorMessage: String): DialogState =
+) : MessageResult.Mapper<MessageListStateState> {
+    override fun map(list: List<MessageDomain>, errorMessage: String): MessageListStateState =
         if (errorMessage.isEmpty())
-            DialogState.Success(list.map { it.map(mapper) })
+            MessageListStateState.Success(list.map { it.map(mapper) })
         else
-            DialogState.Error(errorMessage)
+            MessageListStateState.Error(errorMessage)
 }

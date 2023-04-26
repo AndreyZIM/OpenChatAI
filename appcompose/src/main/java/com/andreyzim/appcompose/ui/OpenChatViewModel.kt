@@ -1,8 +1,12 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.andreyzim.appcompose.ui
 
 import android.util.Log
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.andreyzim.domain.MessageDomain
 import com.andreyzim.domain.OpenChatRepository
 import com.andreyzim.domain.usecases.ClearMessagesUseCase
 import com.andreyzim.domain.usecases.SendMessageUseCase
@@ -17,7 +21,7 @@ class OpenChatViewModel @Inject constructor(
     private val repository: OpenChatRepository,
     private val sendMessageUseCase: SendMessageUseCase,
     private val clearMessageUseCase: ClearMessagesUseCase,
-    private val mapper: MessageResultMapper
+    private val mapper: MessageDomain.Mapper<MessageUI>
 ) : ViewModel() {
 
     private val _uiState: MutableStateFlow<UiState> = MutableStateFlow(UiState.Success)
@@ -28,13 +32,17 @@ class OpenChatViewModel @Inject constructor(
             initialValue = UiState.Success
         )
 
-    val dialogState: StateFlow<DialogState> = repository.data
+    val messageListStateState: StateFlow<MessageListStateState> = repository.data
         .map {
-            it.map(mapper)
-        }.stateIn(
+            it.map {messageDomain ->  messageDomain.map(mapper)}
+        }
+        .map {
+            MessageListStateState.Success(it)
+        }
+        .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000L),
-            initialValue = DialogState.Loading
+            initialValue = MessageListStateState.Loading
         )
 
 

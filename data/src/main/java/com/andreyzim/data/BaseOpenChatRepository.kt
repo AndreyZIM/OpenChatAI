@@ -18,9 +18,10 @@ class BaseOpenChatRepository(
     private val mapper: MessageData.Mapper<MessageDomain>
 ) : OpenChatRepository {
 
-    override var data: Flow<MessageResult> = cacheDataSource.allMessages()
+    override var data: Flow<List<MessageDomain>> = cacheDataSource.allMessages()
         .map { list ->
-            MessageResult.Success(list.map { messageData -> messageData.map(mapper) })
+//            MessageResult.Success(list.map { messageData -> messageData.map(mapper) })
+            list.map {messageData -> messageData.map(mapper)}
         }
 
     override suspend fun sendMessage(body: String) {
