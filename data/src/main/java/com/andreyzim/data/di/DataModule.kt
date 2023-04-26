@@ -98,7 +98,7 @@ class DataModule {
     fun provideClient(interceptor: HttpLoggingInterceptor) : OkHttpClient = OkHttpClient.Builder()
         .addInterceptor(interceptor)
         .readTimeout(1, TimeUnit.MINUTES)
-        .readTimeout(1, TimeUnit.MINUTES)
+        .connectTimeout(1, TimeUnit.MINUTES)
         .build()
 
     @Provides

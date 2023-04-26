@@ -54,7 +54,6 @@ class OpenChatViewModel @Inject constructor(
         } else {
             _uiState.value = UiState.Waiting
             viewModelScope.launch(Dispatchers.IO) {
-                Log.i("SEND", "viewModel: Body: $body")
                 _uiState.value = sendMessageUseCase(body).map(requestResultMapper)
             }
         }

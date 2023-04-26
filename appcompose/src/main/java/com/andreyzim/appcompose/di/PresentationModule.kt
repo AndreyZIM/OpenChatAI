@@ -25,5 +25,5 @@ interface PresentationModule {
     fun bindToUIMapper(mapper: MessageToUIMapper): MessageDomain.Mapper<MessageUI>
 
     @Binds
-    fun bindRequestResultMapper(): RequestResult.Mapper<MessageListStateState>
+    fun bindRequestResultMapper(requestResultMapper: RequestResultMapper): RequestResult.Mapper<UiState>
 }

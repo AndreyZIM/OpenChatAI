@@ -1,6 +1,5 @@
 package com.andreyzim.appcompose.ui
 
-import com.andreyzim.domain.MessageResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject

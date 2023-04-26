@@ -98,7 +98,7 @@ fun OpenChatApp(
                         viewModel.sendMessage(textedMessage.text)
                         textedMessage = TextFieldValue("")
                     }, modifier = Modifier
-                        .padding(0.dp, 8.dp, 8.dp, 8.dp)
+                        .padding(0.dp, 8.dp, 8.dp, 16.dp)
                         .align(Alignment.Bottom),
                     enabled = !(messageListStateState is MessageListStateState.Loading || uiState is UiState.Waiting)
                 ) {
