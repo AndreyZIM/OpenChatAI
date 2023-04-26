@@ -1,14 +1,18 @@
 package com.andreyzim.data.di
 
 import android.content.Context
+import android.hardware.camera2.CameraExtensionSession.ExtensionCaptureCallback
 import androidx.room.Room
 import com.andreyzim.data.BaseOpenChatRepository
 import com.andreyzim.data.Constants
+import com.andreyzim.data.HandleDataError
+import com.andreyzim.data.HandleDataRequest
 import com.andreyzim.data.MessageData
 import com.andreyzim.data.MessageToDomainMapper
 import com.andreyzim.data.cache.*
 import com.andreyzim.data.cloud.MessageCloudDataSource
 import com.andreyzim.data.cloud.OpenChatService
+import com.andreyzim.domain.HandleError
 import com.andreyzim.domain.MessageDomain
 import com.andreyzim.domain.OpenChatRepository
 import dagger.Binds
@@ -43,11 +47,20 @@ class DataModule {
 
     @Provides
     @Singleton
-    fun bindRepository(
+    fun provideRepository(
         cacheDataSource: MessageCacheDataSource,
         cloudDataSource: MessageCloudDataSource,
-        mapper: MessageData.Mapper<MessageDomain>
-    ): OpenChatRepository = BaseOpenChatRepository(cacheDataSource, cloudDataSource, mapper)
+        mapper: MessageData.Mapper<MessageDomain>,
+        handleDataRequest: HandleDataRequest
+    ): OpenChatRepository = BaseOpenChatRepository(cacheDataSource, cloudDataSource, mapper, handleDataRequest)
+
+    @Provides
+    fun provideHandleDataRequest(
+        handleError: HandleError<Exception>
+    ) : HandleDataRequest = HandleDataRequest.Base(handleError)
+
+    @Provides
+    fun provideHandleError() : HandleError<Exception> = HandleDataError()
 
     @Provides
     @Singleton

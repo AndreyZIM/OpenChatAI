@@ -1,18 +1,18 @@
 package com.andreyzim.domain
 
-sealed class MessageResult {
+sealed class RequestResult {
 
     interface Mapper<T> {
-        fun map(list: List<MessageDomain>, errorMessage: String): T
+        fun map(errorMessage: String): T
     }
 
     abstract fun <T> map(mapper: Mapper<T>): T
 
-    data class Success(private val list: List<MessageDomain> = emptyList()) : MessageResult() {
-        override fun <T> map(mapper: Mapper<T>): T = mapper.map(list, "")
+    object Success : RequestResult() {
+        override fun <T> map(mapper: Mapper<T>): T = mapper.map("")
     }
 
-    data class Failure(private val message: String) : MessageResult() {
-        override fun <T> map(mapper: Mapper<T>): T = mapper.map(emptyList(), message)
+    data class Failure(private val message: String) : RequestResult() {
+        override fun <T> map(mapper: Mapper<T>): T = mapper.map(message)
     }
 }

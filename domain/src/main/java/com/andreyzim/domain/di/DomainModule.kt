@@ -12,6 +12,8 @@ import dagger.hilt.components.SingletonComponent
 @InstallIn(SingletonComponent::class)
 class DomainModule {
 
+    // TODO handleDomainRequest DI
+
     @Provides
     fun provideClearMessagesUseCase(repository: OpenChatRepository): ClearMessagesUseCase =
         ClearMessagesUseCase(repository)
