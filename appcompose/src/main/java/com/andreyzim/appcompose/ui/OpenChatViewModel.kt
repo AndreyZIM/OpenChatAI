@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.andreyzim.domain.MessageDomain
 import com.andreyzim.domain.OpenChatRepository
+import com.andreyzim.domain.RequestResult
 import com.andreyzim.domain.usecases.ClearMessagesUseCase
 import com.andreyzim.domain.usecases.SendMessageUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,7 +22,8 @@ class OpenChatViewModel @Inject constructor(
     private val repository: OpenChatRepository,
     private val sendMessageUseCase: SendMessageUseCase,
     private val clearMessageUseCase: ClearMessagesUseCase,
-    private val mapper: MessageDomain.Mapper<MessageUI>
+    private val mapper: MessageDomain.Mapper<MessageUI>,
+    private val requestResultMapper: RequestResult.Mapper<UiState>
 ) : ViewModel() {
 
     private val _uiState: MutableStateFlow<UiState> = MutableStateFlow(UiState.Success)
@@ -53,8 +55,7 @@ class OpenChatViewModel @Inject constructor(
             _uiState.value = UiState.Waiting
             viewModelScope.launch(Dispatchers.IO) {
                 Log.i("SEND", "viewModel: Body: $body")
-                sendMessageUseCase(body)
-                _uiState.value = UiState.Success
+                _uiState.value = sendMessageUseCase(body).map(requestResultMapper)
             }
         }
     }

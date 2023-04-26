@@ -5,7 +5,7 @@ package com.andreyzim.appcompose.di
 import androidx.compose.material3.ExperimentalMaterial3Api
 import com.andreyzim.appcompose.ui.*
 import com.andreyzim.domain.MessageDomain
-import com.andreyzim.domain.MessageResult
+import com.andreyzim.domain.RequestResult
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -25,5 +25,5 @@ interface PresentationModule {
     fun bindToUIMapper(mapper: MessageToUIMapper): MessageDomain.Mapper<MessageUI>
 
     @Binds
-    fun provideMessageResultMapper(mapper: MessageResultMapper): MessageResult.Mapper<MessageListStateState>
+    fun bindRequestResultMapper(): RequestResult.Mapper<MessageListStateState>
 }
