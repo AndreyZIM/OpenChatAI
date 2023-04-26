@@ -4,10 +4,9 @@ import com.andreyzim.data.MessageData
 import com.squareup.moshi.Json
 
 data class ReceivedMessage(
-    @field:Json(name = "created") val created: Long,
     @field:Json(name = "choices") val choices: List<Choice>
 ) {
-    fun toMessageData() : MessageData = MessageData(choices.first().message.content, created, true)
+    fun toMessageData() : MessageData = MessageData(choices.first().message.content, System.currentTimeMillis(), true)
 }
 
 data class Choice(

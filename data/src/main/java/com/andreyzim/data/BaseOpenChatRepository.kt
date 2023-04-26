@@ -35,20 +35,6 @@ class BaseOpenChatRepository(
         cacheDataSource.saveMessage(receivedMessage)
     }
 
-//    override suspend fun sendMessage(body: String) {
-//        cacheDataSource.saveMessage(MessageData(body, System.currentTimeMillis(), false))
-//        Log.i("SEND", "repository body: ${cacheDataSource.allMessages().first()}")
-//        val list = cacheDataSource.allMessages().first().map {
-//            RequestMessage(
-//                if (it.received) "assistant" else "user",
-//                it.message
-//            )
-//        }.reversed()
-//        val receivedMessage = cloudDataSource.sendMessage(list)
-//        cacheDataSource.saveMessage(receivedMessage)
-//    }
-
-
     override suspend fun clearMessages() {
         cacheDataSource.clearMessages()
     }

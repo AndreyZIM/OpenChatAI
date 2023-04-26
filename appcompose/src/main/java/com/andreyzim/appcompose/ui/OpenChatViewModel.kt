@@ -2,7 +2,6 @@
 
 package com.andreyzim.appcompose.ui
 
-import android.util.Log
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -50,7 +49,7 @@ class OpenChatViewModel @Inject constructor(
 
     fun sendMessage(body: String) {
         if (body.isEmpty()) {
-            _uiState.value = UiState.Error("Field is empty.")
+            _uiState.value = UiState.TypingError("Field is empty.")
         } else {
             _uiState.value = UiState.Waiting
             viewModelScope.launch(Dispatchers.IO) {

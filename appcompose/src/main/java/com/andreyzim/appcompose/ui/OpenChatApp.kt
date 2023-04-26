@@ -4,9 +4,7 @@ package com.andreyzim.appcompose.ui
 
 import android.content.ClipData
 import android.content.ClipboardManager
-import android.content.Context
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -21,15 +19,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.andreyzim.appcompose.R
 import com.example.compose.OpenChatAITheme
+import java.text.SimpleDateFormat
 import kotlin.math.ln
 
 @ExperimentalMaterial3Api
@@ -78,7 +76,7 @@ fun OpenChatApp(
                 TextField(
                     value = textedMessage,
                     onValueChange = {
-                        if (uiState is UiState.Error)
+                        if (uiState is UiState.TypingError)
                             viewModel.resetError()
                         textedMessage = it
                     },
@@ -86,11 +84,11 @@ fun OpenChatApp(
                         .padding(8.dp)
                         .weight(1f),
                     maxLines = 6,
-                    isError = uiState is UiState.Error,
+                    isError = uiState is UiState.TypingError,
                     placeholder = { Text("Type here...") },
                     supportingText = {
-                        if (uiState is UiState.Error)
-                            Text(text = (uiState as UiState.Error).message)
+                        if (uiState is UiState.TypingError)
+                            Text(text = (uiState as UiState.TypingError).message)
                     }
                 )
                 IconButton(
@@ -148,7 +146,6 @@ fun OpenChatApp(
                     item {
                         Spacer(Modifier.size(8.dp))
                     }
-
                     items((messageListStateState as MessageListStateState.Success).messageList) { message ->
                         message.toComposable(
                             modifier = Modifier
@@ -180,8 +177,12 @@ fun ColorScheme.surfaceColorAtElevation(
 fun SentMessage(
     modifier: Modifier = Modifier,
     body: String,
-    onClick: (ClipData) -> Unit
+    onClick: (ClipData) -> Unit,
+    created: Long,
+    isError: Boolean = false
 ) {
+    val dateFormat = SimpleDateFormat("kk:mm")
+    val time = dateFormat.format(created)
     Row(modifier = modifier.fillMaxWidth()) {
         Spacer(modifier = Modifier.weight(1f))
         Card(
@@ -195,11 +196,28 @@ fun SentMessage(
                 onClick(clip)
             }
         ) {
-            Text(
-                text = body,
-                modifier = Modifier.padding(16.dp),
-                color = MaterialTheme.colorScheme.onPrimary
-            )
+            Column(
+                Modifier
+                    .padding(16.dp, 16.dp, 16.dp, 6.dp)
+            ) {
+                Text(
+                    text = body,
+                    modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 2.dp),
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+                Text(
+                    text = time,
+                    modifier = Modifier.align(Alignment.End),
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    style = MaterialTheme.typography.labelSmall
+                )
+                if (isError)
+                    Icon(
+                        painter = painterResource(id = R.drawable.baseline_error_24),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.error
+                    )
+            }
         }
     }
 
@@ -211,8 +229,11 @@ fun ReceivedMessage(
     modifier: Modifier = Modifier,
     body: String,
     showAvatar: Boolean,
+    created: Long,
     onClick: (ClipData) -> Unit
 ) {
+    val dateFormat = SimpleDateFormat("kk:mm")
+    val time = dateFormat.format(created)
     Row(modifier = modifier) {
         if (showAvatar) {
             Card(
@@ -247,11 +268,21 @@ fun ReceivedMessage(
                 onClick(clip)
             }
         ) {
-            Text(
-                text = body,
-                modifier = Modifier.padding(16.dp),
-                color = MaterialTheme.colorScheme.onSurface
-            )
+            Column(
+                modifier = Modifier.padding(16.dp, 16.dp, 16.dp, 6.dp)
+            ) {
+                Text(
+                    text = body,
+                    modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 2.dp),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = time,
+                    modifier = Modifier.align(Alignment.End),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.labelSmall
+                )
+            }
         }
     }
 }
