@@ -1,12 +1,10 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
 
 package com.andreyzim.appcompose.ui
 
 import android.content.ClipData
 import android.content.ClipboardManager
-import android.content.Context
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -21,15 +19,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat.getSystemService
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.andreyzim.appcompose.R
 import com.example.compose.OpenChatAITheme
+import java.text.SimpleDateFormat
 import kotlin.math.ln
 
 @ExperimentalMaterial3Api
@@ -45,7 +43,7 @@ fun OpenChatApp(
         mutableStateOf(TextFieldValue(""))
     }
 
-    val dialogState by viewModel.dialogState.collectAsStateWithLifecycle()
+    val messageListStateState by viewModel.messageListStateState.collectAsStateWithLifecycle()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Scaffold(
@@ -58,7 +56,7 @@ fun OpenChatApp(
                 actions = {
                     IconButton(
                         onClick = { viewModel.clearMessages() },
-                        enabled = !(dialogState is DialogState.Loading || uiState is UiState.Waiting)
+                        enabled = !(messageListStateState is MessageListStateState.Loading || uiState is UiState.Waiting)
                     ) {
                         Icon(
                             painter = painterResource(id = R.drawable.baseline_clear_all_24),
@@ -77,22 +75,30 @@ fun OpenChatApp(
             ) {
                 TextField(
                     value = textedMessage,
-                    onValueChange = { textedMessage = it },
+                    onValueChange = {
+                        if (uiState is UiState.TypingError)
+                            viewModel.resetError()
+                        textedMessage = it
+                    },
                     modifier = Modifier
                         .padding(8.dp)
                         .weight(1f),
                     maxLines = 6,
-                    isError = dialogState is DialogState.Error,
-                    placeholder = { Text("Type here...") }
+                    isError = uiState is UiState.TypingError,
+                    placeholder = { Text("Type here...") },
+                    supportingText = {
+                        if (uiState is UiState.TypingError)
+                            Text(text = (uiState as UiState.TypingError).message)
+                    }
                 )
                 IconButton(
                     onClick = {
                         viewModel.sendMessage(textedMessage.text)
                         textedMessage = TextFieldValue("")
                     }, modifier = Modifier
-                        .padding(0.dp, 8.dp, 8.dp, 8.dp)
+                        .padding(0.dp, 8.dp, 8.dp, 16.dp)
                         .align(Alignment.Bottom),
-                    enabled = !(dialogState is DialogState.Loading || uiState is UiState.Waiting)
+                    enabled = !(messageListStateState is MessageListStateState.Loading || uiState is UiState.Waiting)
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.baseline_send_24),
@@ -102,12 +108,12 @@ fun OpenChatApp(
             }
         }
     ) {
-        if (dialogState is DialogState.Loading)
+        if (messageListStateState is MessageListStateState.Loading)
             Box(modifier = modifier.padding(it)) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
         else {
-            if ((dialogState as DialogState.Success).messageList.isEmpty()) {
+            if ((messageListStateState as MessageListStateState.Success).messageList.isEmpty()) {
                 Box(modifier = modifier.padding(it)) {
                     Column(modifier = Modifier.align(Alignment.Center)) {
                         Icon(
@@ -140,8 +146,7 @@ fun OpenChatApp(
                     item {
                         Spacer(Modifier.size(8.dp))
                     }
-
-                    items((dialogState as DialogState.Success).messageList) { message ->
+                    items((messageListStateState as MessageListStateState.Success).messageList) { message ->
                         message.toComposable(
                             modifier = Modifier
                                 .align(Alignment.End)
@@ -172,8 +177,12 @@ fun ColorScheme.surfaceColorAtElevation(
 fun SentMessage(
     modifier: Modifier = Modifier,
     body: String,
-    onClick: (ClipData) -> Unit
+    onClick: (ClipData) -> Unit,
+    created: Long,
+    isError: Boolean = false
 ) {
+    val dateFormat = SimpleDateFormat("kk:mm")
+    val time = dateFormat.format(created)
     Row(modifier = modifier.fillMaxWidth()) {
         Spacer(modifier = Modifier.weight(1f))
         Card(
@@ -187,23 +196,44 @@ fun SentMessage(
                 onClick(clip)
             }
         ) {
-            Text(
-                text = body,
-                modifier = Modifier.padding(16.dp),
-                color = MaterialTheme.colorScheme.onPrimary
-            )
+            Column(
+                Modifier
+                    .padding(16.dp, 16.dp, 16.dp, 6.dp)
+            ) {
+                Text(
+                    text = body,
+                    modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 2.dp),
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+                Text(
+                    text = time,
+                    modifier = Modifier.align(Alignment.End),
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    style = MaterialTheme.typography.labelSmall
+                )
+                if (isError)
+                    Icon(
+                        painter = painterResource(id = R.drawable.baseline_error_24),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.error
+                    )
+            }
         }
     }
 
 }
 
+@ExperimentalMaterial3Api
 @Composable
 fun ReceivedMessage(
     modifier: Modifier = Modifier,
     body: String,
     showAvatar: Boolean,
+    created: Long,
     onClick: (ClipData) -> Unit
 ) {
+    val dateFormat = SimpleDateFormat("kk:mm")
+    val time = dateFormat.format(created)
     Row(modifier = modifier) {
         if (showAvatar) {
             Card(
@@ -212,12 +242,14 @@ fun ReceivedMessage(
                     .align(Alignment.Bottom),
                 shape = RoundedCornerShape(42.dp)
             ) {
-                Image(
+                Icon(
                     painter = painterResource(id = R.drawable.openai_icon),
                     contentDescription = null,
                     modifier = Modifier
                         .size(42.dp)
-                        .padding(6.dp)
+                        .padding(6.dp),
+                    tint = MaterialTheme.colorScheme.onSurface
+
                 )
             }
         }
@@ -236,11 +268,21 @@ fun ReceivedMessage(
                 onClick(clip)
             }
         ) {
-            Text(
-                text = body,
-                modifier = Modifier.padding(16.dp),
-                color = MaterialTheme.colorScheme.onSurface
-            )
+            Column(
+                modifier = Modifier.padding(16.dp, 16.dp, 16.dp, 6.dp)
+            ) {
+                Text(
+                    text = body,
+                    modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 2.dp),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = time,
+                    modifier = Modifier.align(Alignment.End),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.labelSmall
+                )
+            }
         }
     }
 }

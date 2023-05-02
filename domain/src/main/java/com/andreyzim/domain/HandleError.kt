@@ -1,8 +1,15 @@
 package com.andreyzim.domain
 
-class HandleError() {
-// TODO refactor handle domain error
-    fun handle(e: Exception): String {
-        return "ERROR"
+interface HandleError<T> {
+
+    fun handle(e: Exception): T
+
+    class Base(
+        // TODO manageResources
+    ) : HandleError<String> {
+        override fun handle(e: Exception): String = when (e) {
+            is RequestTimeoutException -> "Request timeout."
+            else -> "Service Unavailable."
+        }
     }
 }

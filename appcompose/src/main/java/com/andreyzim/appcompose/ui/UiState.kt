@@ -6,5 +6,7 @@ sealed interface UiState {
 
     object Success: UiState
 
-    data class Error(val message: String): UiState
+    data class TypingError(val message: String): UiState
+
+    data class RequestError(val message: String) : UiState
 }

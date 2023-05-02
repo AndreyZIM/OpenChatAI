@@ -1,14 +1,18 @@
 package com.andreyzim.domain
 
-class HandleRequest(
-    private val handleError: HandleError,
-    private val repository: OpenChatRepository
-) {
 
-    suspend fun handle(block: suspend () -> Unit) = try {
-//        block.invoke()
-//        MessageResult.Success(repository.getAllMessages())
-    } catch (e: Exception) {
-//        MessageResult.Failure(handleError.handle(e))
+
+interface HandleDomainRequest {
+    suspend fun handle(block: suspend () -> Unit): RequestResult
+
+    class Base(
+        private val handleError: HandleError<String>
+    ) : HandleDomainRequest {
+        override suspend fun handle(block: suspend () -> Unit): RequestResult = try{
+            block.invoke()
+            RequestResult.Success
+        } catch (e: Exception) {
+            RequestResult.Failure(handleError.handle(e))
+        }
     }
 }

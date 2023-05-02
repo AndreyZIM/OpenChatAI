@@ -1,5 +1,8 @@
 package com.andreyzim.domain.di
 
+import com.andreyzim.domain.HandleDomainRequest
+import com.andreyzim.domain.HandleError
+import com.andreyzim.domain.OpenChatInteractor
 import com.andreyzim.domain.OpenChatRepository
 import com.andreyzim.domain.usecases.ClearMessagesUseCase
 import com.andreyzim.domain.usecases.SendMessageUseCase
@@ -13,10 +16,23 @@ import dagger.hilt.components.SingletonComponent
 class DomainModule {
 
     @Provides
-    fun provideClearMessagesUseCase(repository: OpenChatRepository): ClearMessagesUseCase =
-        ClearMessagesUseCase(repository)
+    fun provideClearMessagesUseCase(interactor: OpenChatInteractor): ClearMessagesUseCase =
+        ClearMessagesUseCase(interactor)
 
     @Provides
-    fun provideSendMessageUseCase(repository: OpenChatRepository): SendMessageUseCase =
-        SendMessageUseCase(repository)
+    fun provideSendMessageUseCase(interactor: OpenChatInteractor): SendMessageUseCase =
+        SendMessageUseCase(interactor)
+
+    @Provides
+    fun provideInteractor(
+        repository: OpenChatRepository,
+        handleDomainRequest: HandleDomainRequest
+    ): OpenChatInteractor = OpenChatInteractor.Base(repository, handleDomainRequest)
+
+    @Provides
+    fun provideHandleRequest(handleError: HandleError<String>): HandleDomainRequest =
+        HandleDomainRequest.Base(handleError)
+
+    @Provides
+    fun provideHandleError(): HandleError<String> = HandleError.Base()
 }
